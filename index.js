@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import https from "https";
 import fs from "fs";
-// import { applyMiddleware } from "./src/middleware/index.js";
+import { applyMiddleware } from "./src/middleware/index.js";
 const app = express();
 
 const PORT = process.env.PORT || 9999;
@@ -11,7 +11,7 @@ const SERVER_TYPE = process.env.SERVER_TYPE || "http";
 (async () => {
   try {
     console.log("-----STARTING THE SERVER--------");
-    // await applyMiddleware(app);
+    await applyMiddleware(app);
     
     if (SERVER_TYPE === "https") {
       https.createServer(
