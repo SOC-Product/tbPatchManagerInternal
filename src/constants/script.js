@@ -16,18 +16,23 @@ export const SCRIPT = {
     AD_SYNC_HOSTS: `SELECT id, computer_name FROM hosts WHERE source = 'AD';`,
     AD_SYNC_HOSTS_TO_DELETE: (placeholders) => `DELETE FROM hosts WHERE source = 'AD' AND computer_name IN (${placeholders});`,
 
-    // Base select for hosts listing API - only required fields (pagination/search added in service)
-    GET_ALL_HOSTS: `
-      SELECT
-        computer_name AS name,
-        type,
-        criticality,
-        owner,
-        status,
-        operating_system,
-        0 AS vulnerabilities,
-        source,
-        last_sync_time AS last_scanned_synced
-      FROM hosts
-    `,
-}
+    GET_HOST_COUNT_BY_SEARCH: `SELECT COUNT(*) AS count FROM hosts 
+      WHERE 
+      computer_name ILIKE '%' || $1 || '%'
+      OR owner ILIKE '%' || $1 || '%'
+      OR operating_system ILIKE '%' || $1 || '%'
+      OR source ILIKE '%' || $1 || '%'`,
+    GET_HOSTS_BY_SEARCH: `SELECT computer_name AS name, 
+      type, criticality, 
+      owner, 
+      status, 
+      operating_system,
+      source, 
+      last_sync_time AS last_scanned_synced FROM hosts 
+      WHERE 
+      computer_name ILIKE '%' || $1 || '%' 
+      OR owner ILIKE '%' || $1 || '%' 
+      OR operating_system ILIKE '%' || $1 || '%' 
+      OR source ILIKE '%' || $1 || '%' 
+      ORDER BY name ASC LIMIT $2 OFFSET $3`,
+  }

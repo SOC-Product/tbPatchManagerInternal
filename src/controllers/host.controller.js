@@ -1,25 +1,21 @@
-import httpStatus from 'http-status';
 import hostService from '../services/host.service.js';
 
 const hostController = {};
 
 hostController.getAllHosts = async (req, res) => {
   try {
-    const { page, limit, search } = req.query;
+    const limit = Number(req.query.limit) || 10;
+    const page = Number(req.query.page) || 0;
+    const search = req.query.search?.trim() || '';
 
-    const result = await hostService.getAllHosts({
-      page,
-      limit,
-      search,
-    });
-
-    return res.status(result.status).json(result);
+    const response = await hostService.getAllHosts(limit, page, search);
+    return res.status(response.status).json(response);
   } catch (error) {
-    console.error('----INTERNAL SERVER ERROR----', error);
-
-    res
-    .status(error.status || httpStatus.INTERNAL_SERVER_ERROR)
-    .json(error.message || 'Internal server error');
+    console.error('----ERROR WHILE FETCHING HOST LIST----', error);
+    return res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
+    });
   }
 };
 

@@ -3,60 +3,39 @@ import { SCRIPT } from '../constants/script.js';
 
 export const hostService = {};
 
-hostService.getAllHosts = async (options = {}) => {
-  const page = Number(options.page) > 0 ? Number(options.page) : 1;
-  const limit = Number(options.limit) > 0 ? Number(options.limit) : 10;
-  const search = (options.search || '').trim();
+hostService.getAllHosts = async (limit, page, search) => {
+  try {
+    let totalCount = 0;
+    let response;
+    const trimmedSearch = (search || '').trim();
 
-  const offset = (page - 1) * limit;
+   
+      const searchParam = `%${trimmedSearch}%`;
 
-  const whereClauses = [];
-  const params = [];
+      const countResult = await query(SCRIPT.GET_HOST_COUNT_BY_SEARCH, [searchParam]);
 
-  if (search) {
-    params.push(`%${search}%`);
-    whereClauses.push(
-      '(computer_name ILIKE $1 OR owner ILIKE $1 OR operating_system ILIKE $1 OR source ILIKE $1 OR status ILIKE $1 OR type ILIKE $1)',
-    );
+      totalCount = Number(countResult.rows[0]?.count || 0);
+
+      response = await query(SCRIPT.GET_HOSTS_BY_SEARCH, [searchParam, limit, page * limit]);
+
+    return {
+      status: 200,
+      message: 'Hosts fetched successfully',
+      data: response.rows,
+      pagination: {
+        page: page,
+        limit: limit,
+        totalPages: limit ? Math.ceil(totalCount / limit) : 0,
+        total: totalCount,
+      },
+    };
+  } catch (error) {
+    console.error('---------ERROR WHILE FETCHING HOST LIST-----', error);
+    return {
+      status: 500,
+      message: 'Failed to fetch host list',
+    };
   }
-
-  const whereSql = whereClauses.length ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-  // Data query with pagination
-  const dataSql = `
-    ${SCRIPT.GET_ALL_HOSTS}
-    ${whereSql}
-    ORDER BY computer_name ASC
-    LIMIT ${limit} OFFSET ${offset}
-  `;
-
-  // Count query for total items (same filter, no pagination)
-  const countSql = `
-    SELECT COUNT(*) AS total
-    FROM hosts
-    ${whereSql}
-  `;
-
-  const [dataResult, countResult] = await Promise.all([
-    query(dataSql, params),
-    query(countSql, params),
-  ]);
-
-  const total = Number(countResult.rows[0]?.total || 0);
-  const totalPages = total > 0 ? Math.ceil(total / limit) : 0;
-
-  return {
-    status: 200,
-    message: 'Hosts fetched successfully',
-    data: dataResult.rows,
-    meta: {
-      page,
-      limit,
-      total,
-      totalPages,
-      search: search || null,
-    },
-  };
 };
 
 export default hostService;
