@@ -2,13 +2,13 @@ import helmet from "helmet";
 import express from "express";
 import cors from "cors";
 import router from "../routes/index.js";
-
+import { initializeSchema } from "../config/schema.js";
 import { AssetSyncAdFunction } from "../utils/AssetSyncAd.js";
 
 const ASSET_SYNC_AD_INTERVAL = 1000 * 10 // 10 seconds
 export const applyMiddleware = async (app) => {
 
-
+    await initializeSchema();
     app.use(helmet());
     app.use(cors(
         {
@@ -23,5 +23,5 @@ export const applyMiddleware = async (app) => {
     app.get("/", (req, res) =>  res.send("Server Health Check"));
 
     // SYNC AD HOSTS
-    setInterval(AssetSyncAdFunction, ASSET_SYNC_AD_INTERVAL);
+    // setInterval(AssetSyncAdFunction, ASSET_SYNC_AD_INTERVAL);
 }

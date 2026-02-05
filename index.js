@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import https from "https";
 import fs from "fs";
+import { initializeSchema } from "./src/config/schema.js";
 import { applyMiddleware } from "./src/middleware/index.js";
 const app = express();
 
@@ -11,6 +12,10 @@ const SERVER_TYPE = process.env.SERVER_TYPE || "http";
 (async () => {
   try {
     console.log("-----STARTING THE SERVER--------");
+    
+    // Initialize database schema
+    await initializeSchema();
+    
     await applyMiddleware(app);
     
     if (SERVER_TYPE === "https") {
