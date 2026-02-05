@@ -23,5 +23,5 @@ export const applyMiddleware = async (app) => {
     app.get("/", (req, res) =>  res.send("Server Health Check"));
 
     // SYNC AD HOSTS
-    // setInterval(AssetSyncAdFunction, ASSET_SYNC_AD_INTERVAL);
+    setInterval(AssetSyncAdFunction, ASSET_SYNC_AD_INTERVAL);
 }

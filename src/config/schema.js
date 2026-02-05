@@ -24,10 +24,11 @@ const schema = [
     os_release VARCHAR(255),
     os_family VARCHAR(255),
     is_sync BOOLEAN DEFAULT false,
-    last_sync_time TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );`
+    last_sync_time TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  );`,
+
 ];
 
 
