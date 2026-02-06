@@ -9,5 +9,6 @@ router.route('/')
 
 router.route('/:id')
     .get(groupController.getGroupById)
+    .delete(groupController.deleteGroup);
 
 export default router;

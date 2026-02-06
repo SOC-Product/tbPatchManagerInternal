@@ -22,3 +22,9 @@ groupController.getGroupById = asyncTryCatch(async (req, res) => {
     const result = await groupService.getGroupById(id);
     res.status(result.status || 500).json(result);
 });
+
+groupController.deleteGroup = asyncTryCatch(async (req, res) => {
+    const id = req.params.id;
+    const result = await groupService.deleteGroup(id);
+    res.status(result.status || 500).json(result);
+});

@@ -33,3 +33,23 @@ groupService.getGroupById = async (id) => {
     const group = await query(SCRIPT.GET_GROUP_DETAIL_AND_ASSETS_BY_ID, [id]);
     return sendSuccessResponse(200, 'Group fetched successfully', group.rows[0]);
 }
+
+groupService.deleteGroup = async (id) => {
+    try {
+        await query(SCRIPT.BEGIN_TRANSACTION, [], { isWrite: true });
+
+        const groupExists = await query(SCRIPT.GET_GROUP_BY_ID, [id]);
+        if(groupExists.rowCount === 0) {
+            return sendErrorResponse(404, 'Group not found');
+        }
+        await query(SCRIPT.DELETE_GROUP_ASSET_MAPPING, [id], { isWrite: true });
+        await query(SCRIPT.DELETE_GROUP, [id], { isWrite: true });
+        await query(SCRIPT.COMMIT, [], { isWrite: true });
+        return sendSuccessResponse(200, 'Group deleted successfully');
+    } catch (error) {
+        await query(SCRIPT.ROLLBACK, [], { isWrite: true });
+        return sendErrorResponse(500, error.message || 'Internal server error');
+    }
+}
+
+export default groupService;
