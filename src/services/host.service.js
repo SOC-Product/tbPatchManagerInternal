@@ -43,20 +43,19 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
   const startTime = Date.now();
 
   try {
-    const fieldMapping = CONSTANT.MANUAL_HOST_COLUMNS;
+    const allowedFields = CONSTANT.MANUAL_HOST_COLUMNS;
     const fields = [];
     const values = [];
     const placeholders = [];
     let paramIndex = 1;
 
-     // handle multer file 
+    // multer file handling
     if (sshKeyFile) {
       hostData.ssh_key_file = sshKeyFile.originalname;
-      
     }
 
-    Object.entries(fieldMapping).forEach(([userField, dbField]) => {
-      let value = hostData[userField];
+    allowedFields.forEach((field) => {
+      let value = hostData[field];
 
       if (value === undefined || value === null || value === '') return;
 
@@ -64,8 +63,8 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
         value = value.trim();
       }
 
-      fields.push(dbField);
-      values.push(value);
+      fields.push(field);            
+      values.push(value);           
       placeholders.push(`$${paramIndex++}`);
     });
 
@@ -104,6 +103,7 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
     return { status: 500, message: 'Failed to create host', data: null };
   }
 };
+
 
 
 export default hostService;
