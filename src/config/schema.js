@@ -32,9 +32,9 @@ const schema = [
     `
     CREATE TABLE IF NOT EXISTS maintainance_group (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(50) NOT NULL,
+        name VARCHAR(50) NOT NULL UNIQUE,
         description VARCHAR(255),
-        risk_tolerance VARCHAR(50),
+        risk_tolerance VARCHAR(50) CHECK (risk_tolerance IN ('low', 'medium', 'high')),
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     );
