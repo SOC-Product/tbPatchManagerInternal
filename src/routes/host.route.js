@@ -6,6 +6,7 @@ const router = express.Router();
 // Host CRUD operations
 router
   .route('/')
-  .get(hostController.getAllHosts);
+  .get(hostController.getAllHosts)
+  .post(hostController.createAdHost);
 
 export default router;

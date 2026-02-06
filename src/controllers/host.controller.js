@@ -19,4 +19,19 @@ hostController.getAllHosts = async (req, res) => {
   }
 };
 
+hostController.createAdHost = async (req, res) => {
+  try {
+    const hostData = req.body;
+    const result = await hostService.createAdHost(hostData);
+
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error('Error in createAdHost controller:', error);
+    return res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
+    });
+  }
+};
+
 export default hostController;
