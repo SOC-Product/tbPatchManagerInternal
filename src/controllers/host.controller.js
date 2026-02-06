@@ -1,4 +1,5 @@
 import hostService from '../services/host.service.js';
+import { validateCreateHost } from '../validations/host.validation.js';
 
 const hostController = {};
 
@@ -22,7 +23,15 @@ hostController.getAllHosts = async (req, res) => {
 hostController.createAdHost = async (req, res) => {
   try {
     const hostData = req.body;
-    const result = await hostService.createAdHost(hostData);
+    const sshKeyFile = req.file || null;
+    const validationError = validateCreateHost(hostData);
+    if (validationError) {
+      return res.status(400).json({
+        status: 400,
+        message: validationError,
+      });
+    }
+    const result = await hostService.createAdHost(hostData, sshKeyFile);
 
     return res.status(result.status).json(result);
   } catch (error) {

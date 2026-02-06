@@ -1,5 +1,6 @@
 import { query } from '../config/database.js';
 import { SCRIPT } from '../constants/script.js';
+import { CONSTANT } from '../constants/constant.js';
 
 export const hostService = {};
 
@@ -38,62 +39,34 @@ hostService.getAllHosts = async (limit, page, search) => {
   }
 };
 
-hostService.createAdHost = async (hostData) => {
+hostService.createAdHost = async (hostData, sshKeyFile) => {
   const startTime = Date.now();
 
   try {
-    if (!hostData || !hostData.name) {
-      return {
-        status: 400,
-        message: 'Host name is required',
-        data: null,
-        duration: `${Date.now() - startTime}ms`,
-      };
-    }
-
-    if (hostData.name.length > 255) {
-      return {
-        status: 400,
-        message: 'Host name must be 255 characters or less',
-        data: null,
-        duration: `${Date.now() - startTime}ms`,
-      };
-    }
-
-    const fieldMapping = {
-      name: 'computer_name',
-      type: 'type',
-      criticality: 'criticality',
-      status: 'status',
-      location: 'location',
-      owner: 'owner',
-      operatingSystem: 'operating_system',
-      ipAddress: 'ip',
-      username: 'username',
-      password: 'password',
-      source: 'source',
-    };
-
-    const allowedFields = Object.keys(fieldMapping);
+    const fieldMapping = CONSTANT.MANUAL_HOST_COLUMNS;
     const fields = [];
     const values = [];
     const placeholders = [];
     let paramIndex = 1;
 
-    allowedFields.forEach((userField) => {
-      const dbField = fieldMapping[userField];
-      const value = hostData[userField];
+     // handle multer file 
+    if (sshKeyFile) {
+      hostData.ssh_key_file = sshKeyFile.originalname;
+      
+    }
 
-      if (value !== undefined && value !== null) {
-        if (typeof value === 'string' && value.length > 255) {
-          throw new Error(`${userField} must be 255 characters or less`);
-        }
+    Object.entries(fieldMapping).forEach(([userField, dbField]) => {
+      let value = hostData[userField];
 
-        fields.push(dbField);
-        values.push(value);
-        placeholders.push(`$${paramIndex}`);
-        paramIndex += 1;
+      if (value === undefined || value === null || value === '') return;
+
+      if (typeof value === 'string') {
+        value = value.trim();
       }
+
+      fields.push(dbField);
+      values.push(value);
+      placeholders.push(`$${paramIndex++}`);
     });
 
     if (!fields.length) {
@@ -106,43 +79,31 @@ hostService.createAdHost = async (hostData) => {
     }
 
     const insertQuery = SCRIPT.CREATE_HOST(fields, placeholders);
-
     const result = await query(insertQuery, values, { isWrite: true });
-    const duration = Date.now() - startTime;
 
     return {
       status: 201,
       message: 'Host created successfully',
       data: result.rows[0],
-      duration: `${duration}ms`,
+      duration: `${Date.now() - startTime}ms`,
     };
+
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error('---------ERROR WHILE CREATING HOST-----', {
+
+    console.error('ERROR WHILE CREATING HOST', {
       message: error.message,
-      stack: error.stack,
       hostData: hostData ? { name: hostData.name } : null,
       duration: `${duration}ms`,
     });
 
-    let status = 500;
-    let message = 'Failed to create host';
-
-    if (error.message.includes('must be 255 characters or less')) {
-      status = 400;
-      message = error.message;
-    } else if (error.message.includes('duplicate key value violates unique constraint')) {
-      status = 409;
-      message = 'Host already exists';
+    if (error.message.includes('duplicate key')) {
+      return { status: 409, message: 'Host already exists', data: null };
     }
 
-    return {
-      status,
-      message,
-      data: null,
-      duration: `${duration}ms`,
-    };
+    return { status: 500, message: 'Failed to create host', data: null };
   }
 };
+
 
 export default hostService;
