@@ -2,7 +2,7 @@ import { query } from '../config/database.js';
 import { SCRIPT } from '../constants/script.js';
 import { _validateGroupData } from '../validations/group.validation.js';
 import { sendErrorResponse } from '../utils/sendError.js';
-import { sendSuccessPagination } from '../utils/sendSuccess.js';
+import { sendSuccessPagination, sendSuccessResponse } from '../utils/sendSuccess.js';
 import { formatZodErrors } from '../utils/formatZodError.js';
 import { createGroup } from '../helpers/group.helper.js';
 
@@ -23,4 +23,13 @@ groupService.getGroups = async (limit, page, search) => {
     const count = await query(SCRIPT.GET_GROUP_COUNT_BY_SEARCH, [search]);
     const groups = await query(SCRIPT.GET_GROUPS_BY_SEARCH, [search, limit, page * limit]);
     return sendSuccessPagination(200, 'Groups fetched successfully', groups.rows, limit, page, count.rows[0].count);
+}
+
+groupService.getGroupById = async (id) => {
+    const groupExists = await query(SCRIPT.GET_GROUP_BY_ID, [id]);
+    if(groupExists.rowCount === 0) {
+        return sendErrorResponse(404, 'Group not found');
+    }
+    const group = await query(SCRIPT.GET_GROUP_DETAIL_AND_ASSETS_BY_ID, [id]);
+    return sendSuccessResponse(200, 'Group fetched successfully', group.rows[0]);
 }

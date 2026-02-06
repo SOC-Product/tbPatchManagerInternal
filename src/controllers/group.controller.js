@@ -16,3 +16,9 @@ groupController.getGroups = asyncTryCatch(async (req, res) => {
     const result = await groupService.getGroups(limit, page, search);
     res.status(result.status || 500).json(result);
 });
+
+groupController.getGroupById = asyncTryCatch(async (req, res) => {
+    const id = req.params.id;
+    const result = await groupService.getGroupById(id);
+    res.status(result.status || 500).json(result);
+});

@@ -7,4 +7,7 @@ router.route('/')
     .post(groupController.createGroup)
     .get(groupController.getGroups);
 
+router.route('/:id')
+    .get(groupController.getGroupById)
+
 export default router;
