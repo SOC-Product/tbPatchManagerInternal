@@ -28,3 +28,10 @@ groupController.deleteGroup = asyncTryCatch(async (req, res) => {
     const result = await groupService.deleteGroup(id);
     res.status(result.status || 500).json(result);
 });
+
+groupController.updateGroup = asyncTryCatch(async (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+    const result = await groupService.updateGroup(id, data);
+    res.status(result.status || 500).json(result);
+});

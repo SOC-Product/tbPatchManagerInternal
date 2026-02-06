@@ -71,4 +71,16 @@ export const SCRIPT = {
         `,
   DELETE_GROUP_ASSET_MAPPING: `DELETE FROM maintainance_group_host_mapping WHERE maintainance_group_id = $1`,
   DELETE_GROUP: `DELETE FROM maintainance_group WHERE id = $1`,
+  
+  UPDATE_GROUP: `
+    UPDATE maintainance_group SET name = $2, risk_tolerance = $3, description = $4, updated_at = NOW() WHERE id = $1
+  `,
+
+  GET_GROUP_ASSETS: `SELECT host_id FROM maintainance_group_host_mapping WHERE maintainance_group_id = $1`,
+  DELETE_ASSETS: `
+        DELETE FROM maintainance_group_host_mapping 
+        WHERE 
+        maintainance_group_id = $1 
+        AND host_id = ANY($2);`,
+
 }

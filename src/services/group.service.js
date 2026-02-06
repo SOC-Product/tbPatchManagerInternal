@@ -4,7 +4,7 @@ import { _validateGroupData } from '../validations/group.validation.js';
 import { sendErrorResponse } from '../utils/sendError.js';
 import { sendSuccessPagination, sendSuccessResponse } from '../utils/sendSuccess.js';
 import { formatZodErrors } from '../utils/formatZodError.js';
-import { createGroup } from '../helpers/group.helper.js';
+import { createGroup, updateGroup } from '../helpers/group.helper.js';
 
 export const groupService = {};
 
@@ -50,6 +50,20 @@ groupService.deleteGroup = async (id) => {
         await query(SCRIPT.ROLLBACK, [], { isWrite: true });
         return sendErrorResponse(500, error.message || 'Internal server error');
     }
+}
+
+groupService.updateGroup = async (id, data) => {
+    const validatedData = _validateGroupData.safeParse(data);
+    if (!validatedData.success) {
+        return sendErrorResponse(400, formatZodErrors(validatedData.error));
+    }
+
+    const groupExists = await query(SCRIPT.GET_GROUP_BY_ID, [id]);
+    if(groupExists.rowCount === 0) {
+        return sendErrorResponse(404, 'Group not found');
+    }
+    return updateGroup(id, validatedData.data);
+
 }
 
 export default groupService;
