@@ -6,6 +6,7 @@ export const _validateGroupData = z.object({
         required_error: 'Risk tolerance is required',
         invalid_type_error: 'Risk tolerance must be one of: low, medium, high'
     }),
-    description: z.string().optional()
+    description: z.string().optional(),
+    assets: z.array(z.number()).optional()
 });
     

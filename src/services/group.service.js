@@ -2,7 +2,7 @@ import { query } from '../config/database.js';
 import { SCRIPT } from '../constants/script.js';
 import { _validateGroupData } from '../validations/group.validation.js';
 import { sendErrorResponse } from '../utils/sendError.js';
-import { sendSuccessResponse } from '../utils/sendSuccess.js';
+import { sendSuccessResponse, sendSuccessPagination } from '../utils/sendSuccess.js';
 import { formatZodErrors } from '../utils/formatZodError.js';
 export const groupService = {};
 
@@ -14,6 +14,10 @@ const _createGroup = async (data) => {
         }
         const result = await query(SCRIPT.CREATE_GROUP, [data.name, data.risk_tolerance, data.description || null], { isWrite: true });
 
+        if(data.assets && data.assets.length > 0) {
+            const placeholders = data.assets.map(asset => `(${result.rows[0].id}, ${asset})`).join(', ');
+            await query(SCRIPT.CREATE_GROUP_ASSET_MAPPING(placeholders), [], { isWrite: true });
+        }
         return sendSuccessResponse(201, 'Group created successfully', result.rows[0]);
     } catch (error) {
         if(error.success === false) {
@@ -32,3 +36,10 @@ groupService.createGroup = async (data) => {
 
     return _createGroup(validatedData.data);
 };
+
+groupService.getGroups = async (limit, page, search) => {
+    
+    const count = await query(SCRIPT.GET_GROUP_COUNT_BY_SEARCH, [search]);
+    const groups = await query(SCRIPT.GET_GROUPS_BY_SEARCH, [search, limit, page * limit]);
+    return sendSuccessPagination(200, 'Groups fetched successfully', groups.rows, limit, page, count.rows[0].count);
+}

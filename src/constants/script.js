@@ -38,4 +38,16 @@ export const SCRIPT = {
       
     GET_GROUP_BY_NAME: `SELECT * FROM maintainance_group WHERE name = $1`,
     CREATE_GROUP: `INSERT INTO maintainance_group (name, risk_tolerance, description) VALUES ($1, $2, $3) RETURNING *`,
+
+    CREATE_GROUP_ASSET_MAPPING: (placeholders) => 
+      `INSERT INTO maintainance_group_host_mapping (maintainance_group_id, host_id) VALUES ${placeholders}`,
+    GET_GROUP_COUNT_BY_SEARCH: 
+      `SELECT COUNT(*) AS count FROM maintainance_group 
+        WHERE name ILIKE '%' || $1 || '%'
+        OR risk_tolerance ILIKE '%' || $1 || '%'`,
+
+    GET_GROUPS_BY_SEARCH: `SELECT * FROM maintainance_group 
+        WHERE name ILIKE '%' || $1 || '%'
+        OR risk_tolerance ILIKE '%' || $1 || '%'
+        ORDER BY name ASC LIMIT $2 OFFSET $3`,
   }
