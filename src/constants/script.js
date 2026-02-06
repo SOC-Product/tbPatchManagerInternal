@@ -39,6 +39,13 @@ export const SCRIPT = {
       OR operating_system ILIKE '%' || $1 || '%' 
       OR source ILIKE '%' || $1 || '%' 
       ORDER BY name ASC LIMIT $2 OFFSET $3`,
+
+    CREATE_HOST: (fields, placeholders) => `
+      INSERT INTO hosts (${fields.join(', ')})
+      VALUES (${placeholders.join(', ')})
+      RETURNING
+        id, computer_name AS name, type, criticality, owner, status, operating_system, source, last_sync_time AS last_scanned_synced
+    `,
   
   GET_GROUP_BY_NAME: `SELECT * FROM maintainance_group WHERE name = $1`,
   CREATE_GROUP: `INSERT INTO maintainance_group (name, risk_tolerance, description) VALUES ($1, $2, $3) RETURNING *`,
