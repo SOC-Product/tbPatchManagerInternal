@@ -10,5 +10,4 @@ router
   .get(hostController.getAllHosts)
   .post(uploadSSHKey.single("ssh_key"), hostController.createAdHost);
 
-// just check
 export default router;
