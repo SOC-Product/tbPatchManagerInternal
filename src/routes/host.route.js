@@ -8,6 +8,11 @@ const router = express.Router();
 router
   .route("/")
   .get(hostController.getAllHosts)
-  .post(uploadSSHKey.single("ssh_key"), hostController.createAdHost);
+  .post(uploadSSHKey.single('ssh_key'), hostController.createAdHost);
+  
+  router.route('/:id')
+  .put(hostController.updateAdHost)
+  .delete(hostController.deleteAdHost)
+  .get(hostController.getAdHostById);
 
 export default router;
