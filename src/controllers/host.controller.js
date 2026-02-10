@@ -1,5 +1,6 @@
 import hostService from '../services/host.service.js';
 import { validateCreateHost } from '../validations/host.validation.js';
+import { asyncTryCatch } from '../utils/asyncTryCatch.js';
 
 const hostController = {};
 
@@ -95,5 +96,10 @@ hostController.getAdHostById = async (req, res) => {
     });
   }
 };
+
+hostController.getKpiData = asyncTryCatch(async (req, res) => {
+  const result = await hostService.getKpiData();
+  res.status(result.status || 500).json(result);
+})
 
 export default hostController;

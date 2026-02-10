@@ -60,7 +60,21 @@ export const SCRIPT = {
     FROM hosts
     WHERE id = $1
   `,
-
+  
+  GET_HOST_KPI: `
+  SELECT 
+    COUNT(*) AS total_host,
+    COUNT(*) FILTER (
+      WHERE LOWER(status) = 'online'
+    ) AS online,
+    COUNT(*) FILTER (
+      WHERE LOWER(status) = 'offline'
+    ) AS offline,
+    COUNT(*) FILTER (
+      WHERE LOWER(patch_status) = 'critical'
+    ) AS critical_patches
+  FROM hosts;
+  `,
   GET_GROUP_BY_NAME: `SELECT * FROM maintainance_group WHERE name = $1`,
   CREATE_GROUP: `INSERT INTO maintainance_group (name, risk_tolerance, description) VALUES ($1, $2, $3) RETURNING *`,
 

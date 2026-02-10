@@ -2,6 +2,7 @@ import { query } from '../config/database.js';
 import { SCRIPT } from '../constants/script.js';
 import { CONSTANT } from '../constants/constant.js';
 import { processAndSaveSSHKey } from '../utils/sshKeyProcessor.js';
+import { sendSuccessResponse } from '../utils/sendSuccess.js';
 
 export const hostService = {};
 
@@ -10,16 +11,10 @@ hostService.getAllHosts = async (limit, page, search) => {
     let totalCount = 0;
     let response;
     const trimmedSearch = (search || '').trim();
-
-   
       const searchParam = `%${trimmedSearch}%`;
-
       const countResult = await query(SCRIPT.GET_HOST_COUNT_BY_SEARCH, [searchParam]);
-
       totalCount = Number(countResult.rows[0]?.count || 0);
-
       response = await query(SCRIPT.GET_HOSTS_BY_SEARCH, [searchParam, limit, page * limit]);
-
     return {
       status: 200,
       message: 'Hosts fetched successfully',
@@ -239,5 +234,15 @@ hostService.getAdHostById = async (hostId) => {
   }
 };
 
+hostService.getKpiData = async () => {
+  const host_kpi = await query(SCRIPT.GET_HOST_KPI);
+  const data = host_kpi.rows?.[0] || {};
+  return sendSuccessResponse(200, 'Host kpi fetched successfully', {
+    total_host: Number(data.total_host) || 0,
+    online: Number(data.online) || 0,
+    offline: Number(data.offline) || 0,
+    critical_patches: Number(data.critical_patches) || 0,
+  });
+};
 
 export default hostService;
