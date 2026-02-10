@@ -104,8 +104,6 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
 };
 
 hostService.updateAdHost = async (hostId, updateData, sshKeyFile) => {
-  const startTime = Date.now();
-
   try {
     if (!hostId) {
       return {
@@ -156,7 +154,7 @@ hostService.updateAdHost = async (hostId, updateData, sshKeyFile) => {
     const updateQuery = SCRIPT.UPDATE_HOST(updateFields);
     const result = await query(updateQuery, values, { isWrite: true });
 
-    if (!result.rows.length) {
+    if (result.rowCount === 0) {
       return {
         status: 404,
         message: 'Host not found'
@@ -167,7 +165,6 @@ hostService.updateAdHost = async (hostId, updateData, sshKeyFile) => {
       status: 200,
       message: 'Host updated successfully',
       data: result.rows[0],
-      duration: `${Date.now() - startTime}ms`
     };
 
   } catch (error) {
@@ -181,7 +178,6 @@ hostService.updateAdHost = async (hostId, updateData, sshKeyFile) => {
 };
 
 hostService.deleteAdHost = async (hostId) => {
-  const startTime = Date.now();
 
   try {
     if (!hostId) {
@@ -190,15 +186,13 @@ hostService.deleteAdHost = async (hostId) => {
 
     const result = await query(SCRIPT.DELETE_HOST, [hostId], { isWrite: true });
 
-    if (!result.rows.length) {
+    if (result.rowCount === 0) {
       return { status: 404, message: 'Host not found' };
     }
 
     return {
       status: 200,
       message: 'Host deleted successfully',
-      data: result.rows[0],
-      duration: `${Date.now() - startTime}ms`
     };
 
   } catch (error) {

@@ -27,7 +27,7 @@ export const SCRIPT = {
 
   GET_HOSTS_BY_SEARCH: `SELECT computer_name AS name, id, 
       type, criticality, owner, status, operating_system,
-      source, os_version, ssh_key_file AS ssh_key,
+      source, os_version, ssh_key_file AS ssh_key, ip,
       last_sync_time AS last_scanned_synced 
     FROM hosts 
     WHERE 
@@ -40,28 +40,22 @@ export const SCRIPT = {
   CREATE_HOST: (fields, placeholders) => `
     INSERT INTO hosts (${fields.join(', ')})
     VALUES (${placeholders.join(', ')})
-    RETURNING
-      id, computer_name AS name, type, criticality, owner, status,
-      operating_system, source, os_version, ssh_key_file AS ssh_key,
-      last_sync_time AS last_scanned_synced
   `,
 
   UPDATE_HOST: (updateFields) => `
     UPDATE hosts
     SET ${updateFields.join(', ')}
     WHERE id = $${updateFields.length + 1}
-    RETURNING *
   `,
 
   DELETE_HOST: `
     DELETE FROM hosts
     WHERE id = $1
-    RETURNING *
   `,
 
   GET_HOST_BY_ID: `
     SELECT id, computer_name AS name, type, criticality, owner, status,
-           operating_system, source, os_version, ssh_key_file AS ssh_key,
+           operating_system, source, os_version, ssh_key_file AS ssh_key, ip,
            last_sync_time AS last_scanned_synced
     FROM hosts
     WHERE id = $1
