@@ -70,7 +70,6 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
       return {
         status: 400,
         message: 'No valid fields provided for host creation',
-        data: null
       };
     }
 
@@ -91,10 +90,10 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
     });
 
     if (error.message.includes('duplicate key')) {
-      return { status: 409, message: 'Host already exists', data: null };
+      return { status: 409, message: 'Host already exists',};
     }
 
-    return { status: 500, message: 'Failed to create host', data: null };
+    return { status: 500, message: 'Failed to create host',};
   }
 };
 

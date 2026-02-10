@@ -11,7 +11,7 @@ router.route('/kpi')
     .get(groupController.getKpiData)
 router.route('/:id')
     .get(groupController.getGroupById)
-    .patch(groupController.updateGroup)
+    .put(groupController.updateGroup)
     .delete(groupController.deleteGroup);
 
 export default router;

@@ -4,7 +4,7 @@ const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
         computer_name VARCHAR(255) NOT NULL,
-        ip VARCHAR(255),
+        ip VARCHAR(255) UNIQUE,
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
         operating_system_version VARCHAR(255),
@@ -50,6 +50,7 @@ const schema = [
         UNIQUE (maintainance_group_id, host_id)
     );
     `
+
 ];
 
 
