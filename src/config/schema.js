@@ -16,6 +16,7 @@ const schema = [
         patch_status VARCHAR(255),
         username VARCHAR(255),
         password VARCHAR(255),
+        ssh_key VARCHAR(255),
         ssh_key_file VARCHAR(255),
         source VARCHAR(50),
         status VARCHAR(255),

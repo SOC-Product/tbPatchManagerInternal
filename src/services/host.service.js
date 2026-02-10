@@ -49,9 +49,8 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
     if (sshKeyFile) {
       savedKeyFileName = await processAndSaveSSHKey(sshKeyFile, hostData.host_name);
       hostData.ssh_key_file = savedKeyFileName;
+      hostData.ssh_key = sshKeyFile.originalname;
     }
-    
-
     allowedFields.forEach((field) => {
       let value = hostData[field];
 
@@ -115,6 +114,7 @@ hostService.updateAdHost = async (hostId, updateData, sshKeyFile) => {
     if (sshKeyFile) {
       const savedKey = await processAndSaveSSHKey(sshKeyFile, hostId);
       updateData.ssh_key_file = savedKey;
+      updateData.ssh_key = sshKeyFile.originalname || savedKey;
     }    
 
     // build dynamic update query
