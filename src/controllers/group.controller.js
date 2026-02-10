@@ -35,3 +35,8 @@ groupController.updateGroup = asyncTryCatch(async (req, res) => {
     const result = await groupService.updateGroup(id, data);
     res.status(result.status || 500).json(result);
 });
+
+groupController.getKpiData = asyncTryCatch(async (req, res) => {
+    const result = await groupService.getKpiData();
+    res.status(result.status || 500).json(result);
+})

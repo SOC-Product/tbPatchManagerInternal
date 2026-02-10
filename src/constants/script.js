@@ -76,11 +76,15 @@ export const SCRIPT = {
         WHERE m.id = $1
         GROUP BY m.id;
         `,
-  DELETE_GROUP_ASSET_MAPPING: `DELETE FROM maintainance_group_host_mapping WHERE maintainance_group_id = $1`,
+  DELETE_GROUP_ASSET_MAPPING: 
+    ` DELETE FROM maintainance_group_host_mapping 
+      WHERE maintainance_group_id = $1`,
   DELETE_GROUP: `DELETE FROM maintainance_group WHERE id = $1`,
   
   UPDATE_GROUP: `
-    UPDATE maintainance_group SET name = $2, risk_tolerance = $3, description = $4, updated_at = NOW() WHERE id = $1
+    UPDATE maintainance_group 
+    SET name = $2, risk_tolerance = $3, description = $4, updated_at = NOW() 
+    WHERE id = $1
   `,
 
   GET_GROUP_ASSETS: `SELECT host_id FROM maintainance_group_host_mapping WHERE maintainance_group_id = $1`,
@@ -89,5 +93,13 @@ export const SCRIPT = {
         WHERE 
         maintainance_group_id = $1 
         AND host_id = ANY($2);`,
+  
+  MAINTAINANCE_GROUP_KPI: 
+      ` SELECT count(*), 
+        SUM(CASE WHEN risk_tolerance='high' THEN 1 ELSE 0 END) AS CRITICAL 
+        from maintainance_group;`,
+  GET_ASSETS_IN_GROUP: 
+      ` SELECT count(*) 
+        from maintainance_group_host_mapping`,
 
 }

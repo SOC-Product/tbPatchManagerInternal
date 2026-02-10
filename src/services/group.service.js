@@ -66,4 +66,18 @@ groupService.updateGroup = async (id, data) => {
 
 }
 
+groupService.getKpiData = async () => {
+
+    const group_kpi = await query(SCRIPT.MAINTAINANCE_GROUP_KPI);
+    const grouped_assets = await query(SCRIPT.GET_ASSETS_IN_GROUP)
+    
+    const response_data = {
+        total_group: group_kpi.rows?.[0]?.count ?? 0,
+        critical_group: group_kpi.rows?.[0]?.critical ?? 0,
+        total_grouped_asset: grouped_assets.rows?.[0]?.count ?? 0
+    }
+
+    return sendSuccessResponse(200, 'Group kpi fetched successfully', response_data)
+}
+
 export default groupService;
