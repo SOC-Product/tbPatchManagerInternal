@@ -5,7 +5,7 @@ import vulnerabilityRouter from "./vulnarability.route.js"
 const router = express.Router();
 
 // Mount host routes
-router.use("/host", hostRouter);
+router.use("/hosts", hostRouter);
 router.use("/group", groupRouter);
 router.use("/vulnerability", vulnerabilityRouter);
 

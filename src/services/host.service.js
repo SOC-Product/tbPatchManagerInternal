@@ -1,6 +1,7 @@
 import { query } from '../config/database.js';
 import { SCRIPT } from '../constants/script.js';
 import { CONSTANT } from '../constants/constant.js';
+import { processAndSaveSSHKey } from '../utils/sshKeyProcessor.js';
 
 export const hostService = {};
 
@@ -40,8 +41,6 @@ hostService.getAllHosts = async (limit, page, search) => {
 };
 
 hostService.createAdHost = async (hostData, sshKeyFile) => {
-  const startTime = Date.now();
-
   try {
     const allowedFields = CONSTANT.MANUAL_HOST_COLUMNS;
     const fields = [];
@@ -50,9 +49,13 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
     let paramIndex = 1;
 
     // multer file handling
+    let savedKeyFileName = null;
+
     if (sshKeyFile) {
-      hostData.ssh_key_file = sshKeyFile.originalname;
+      savedKeyFileName = await processAndSaveSSHKey(sshKeyFile, hostData.computer_name);
+      hostData.ssh_key_file = savedKeyFileName;
     }
+    
 
     allowedFields.forEach((field) => {
       let value = hostData[field];
@@ -72,8 +75,7 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
       return {
         status: 400,
         message: 'No valid fields provided for host creation',
-        data: null,
-        duration: `${Date.now() - startTime}ms`,
+        data: null
       };
     }
 
@@ -83,17 +85,14 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
     return {
       status: 201,
       message: 'Host created successfully',
-      data: result.rows[0],
-      duration: `${Date.now() - startTime}ms`,
+      data: result.rows[0]
     };
 
   } catch (error) {
-    const duration = Date.now() - startTime;
 
     console.error('ERROR WHILE CREATING HOST', {
       message: error.message,
-      hostData: hostData ? { name: hostData.name } : null,
-      duration: `${duration}ms`,
+      hostData: hostData ? { name: hostData.name } : null
     });
 
     if (error.message.includes('duplicate key')) {
@@ -104,6 +103,141 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
   }
 };
 
+hostService.updateAdHost = async (hostId, updateData, sshKeyFile) => {
+  try {
+    if (!hostId) {
+      return {
+        status: 400,
+        message: 'Host ID is required'
+      };
+    }
+
+    const allowedFields = CONSTANT.MANUAL_HOST_COLUMNS;
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    // multer file support
+    if (sshKeyFile) {
+      const savedKey = await processAndSaveSSHKey(sshKeyFile, hostId);
+      updateData.ssh_key_file = savedKey;
+    }    
+
+    // build dynamic update query
+    allowedFields.forEach((field) => {
+      let value = updateData[field];
+
+      if (value === undefined || value === null || value === '') return;
+
+      if (typeof value === 'string') {
+        value = value.trim();
+      }
+
+      updateFields.push(`${field} = $${paramIndex++}`);
+      values.push(value);
+    });
+
+    if (!updateFields.length) {
+      return {
+        status: 400,
+        message: 'No valid fields provided for update'
+      };
+    }
+
+    // add modified_at automatically
+    updateFields.push(`updated_at = $${paramIndex++}`);
+    values.push(new Date());
+
+    // add hostId in WHERE clause
+    values.push(hostId);
+
+    const updateQuery = SCRIPT.UPDATE_HOST(updateFields);
+    const result = await query(updateQuery, values, { isWrite: true });
+
+    if (result.rowCount === 0) {
+      return {
+        status: 404,
+        message: 'Host not found'
+      };
+    }
+
+    return {
+      status: 200,
+      message: 'Host updated successfully',
+      data: result.rows[0],
+    };
+
+  } catch (error) {
+    console.error('ERROR WHILE UPDATING HOST', error);
+
+    return {
+      status: 500,
+      message: 'Failed to update host'
+    };
+  }
+};
+
+hostService.deleteAdHost = async (hostId) => {
+
+  try {
+    if (!hostId) {
+      return { status: 400, message: 'Host ID is required' };
+    }
+
+    const result = await query(SCRIPT.DELETE_HOST, [hostId], { isWrite: true });
+
+    if (result.rowCount === 0) {
+      return { status: 404, message: 'Host not found' };
+    }
+
+    return {
+      status: 200,
+      message: 'Host deleted successfully',
+    };
+
+  } catch (error) {
+    console.error('ERROR WHILE DELETING HOST', error);
+
+    return {
+      status: 500,
+      message: 'Failed to delete host'
+    };
+  }
+};
+
+hostService.getAdHostById = async (hostId) => {
+  try {
+    if (!hostId) {
+      return {
+        status: 400,
+        message: 'Host ID is required'
+      };
+    }
+
+    const result = await query(SCRIPT.GET_HOST_BY_ID, [hostId]);
+
+    if (!result.rows.length) {
+      return {
+        status: 404,
+        message: 'Host not found'
+      };
+    }
+
+    return {
+      status: 200,
+      message: 'Host fetched successfully',
+      data: result.rows[0]
+    };
+
+  } catch (error) {
+    console.error('ERROR WHILE FETCHING HOST BY ID', error);
+
+    return {
+      status: 500,
+      message: 'Failed to fetch host'
+    };
+  }
+};
 
 
 export default hostService;
