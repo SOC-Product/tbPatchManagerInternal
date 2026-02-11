@@ -7,31 +7,31 @@ export const SCRIPT = {
     INSERT INTO hosts (${columns.join(', ')})
     VALUES ${placeholders.join(', ')}
     ON CONFLICT (distinguished_name) DO UPDATE SET
-      computer_name = EXCLUDED.computer_name,
+      host_name = EXCLUDED.host_name,
       operating_system = COALESCE(hosts.operating_system, EXCLUDED.operating_system),
       operating_system_version = COALESCE(hosts.operating_system_version, EXCLUDED.operating_system_version),
       dns_host_name = EXCLUDED.dns_host_name,
       updated_at = NOW()
   `,
 
-  AD_SYNC_HOSTS: `SELECT id, computer_name FROM hosts WHERE source = 'AD';`,
+  AD_SYNC_HOSTS: `SELECT id, host_name FROM hosts WHERE source = 'AD';`,
   AD_SYNC_HOSTS_TO_DELETE: (placeholders) =>
-    `DELETE FROM hosts WHERE source = 'AD' AND computer_name IN (${placeholders});`,
+    `DELETE FROM hosts WHERE source = 'AD' AND host_name IN (${placeholders});`,
 
   GET_HOST_COUNT_BY_SEARCH: `SELECT COUNT(*) AS count FROM hosts 
     WHERE 
-      computer_name ILIKE '%' || $1 || '%'
+      host_name ILIKE '%' || $1 || '%'
       OR owner ILIKE '%' || $1 || '%'
       OR operating_system ILIKE '%' || $1 || '%'
       OR source ILIKE '%' || $1 || '%'`,
 
-  GET_HOSTS_BY_SEARCH: `SELECT computer_name AS name, id, 
+  GET_HOSTS_BY_SEARCH: `SELECT host_name AS name, id, 
       type, criticality, owner, status, operating_system,
       source, os_version, ssh_key_file AS ssh_key, ip,
       last_sync_time AS last_scanned_synced 
     FROM hosts 
     WHERE 
-      computer_name ILIKE '%' || $1 || '%' 
+      host_name ILIKE '%' || $1 || '%' 
       OR owner ILIKE '%' || $1 || '%' 
       OR operating_system ILIKE '%' || $1 || '%' 
       OR source ILIKE '%' || $1 || '%' 
@@ -54,7 +54,7 @@ export const SCRIPT = {
   `,
 
   GET_HOST_BY_ID: `
-    SELECT id, computer_name AS name, type, criticality, owner, status,
+    SELECT id, host_name AS name, type, criticality, owner, status,
            operating_system, source, os_version, ssh_key_file AS ssh_key, ip,
            last_sync_time AS last_scanned_synced
     FROM hosts
@@ -145,4 +145,28 @@ export const SCRIPT = {
     WHERE maintainance_group_id = $1 
     AND host_id = ANY($2);
   `,
+
+  //VULNERABILITY
+  BULK_ADD_LINUX_VULNERABILITY: (placeholders) => `
+  INSERT INTO linux_vulnerability 
+  (cve_id, severity, cvss_score, package_name, os_type, os_version)
+  VALUES ${placeholders}
+  ON CONFLICT (cve_id)
+  DO UPDATE SET
+    severity      = EXCLUDED.severity,
+    cvss_score    = EXCLUDED.cvss_score,
+    package_name  = EXCLUDED.package_name,
+    os_type       = EXCLUDED.os_type,
+    os_version    = EXCLUDED.os_version,
+    updated_at    = CURRENT_TIMESTAMP
+`,
+
+GET_HOSTS_BY_IPS: `SELECT id, ip, host_name FROM hosts WHERE ip = ANY($1)`,
+
+BULK_ADD_LINUX_VULNERABILITY_MAPPING: (placeholders) => `
+      INSERT INTO vulnerability_host_mapping 
+      (cve_id, host_id, host_name, ip_address)
+      VALUES ${placeholders}
+      ON CONFLICT (cve_id, host_id) DO NOTHING
+    `,
 };
