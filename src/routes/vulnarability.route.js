@@ -6,6 +6,6 @@ const router = express.Router();
 
 router
   .post('/parseCsvVulnerability', uploadCsvFile.single('file') ,vulnerabilityController.parseCsvVulnerability)
-  
+  .post('/addVulnerability', vulnerabilityController.addVulnerability)
 
 export default router;

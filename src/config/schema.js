@@ -49,6 +49,24 @@ const schema = [
 
         UNIQUE (maintainance_group_id, host_id)
     );
+    `,
+    `
+    CREATE TABLE IF NOT EXISTS vulnerabilities (
+    cve_id VARCHAR(50) PRIMARY KEY,
+    severity VARCHAR(50) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
+    cvss_score NUMERIC(3,1) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+   );
+    `,
+    `
+    CREATE TABLE IF NOT EXISTS vulnerability_host_mapping (
+    cve_id VARCHAR(50) NOT NULL REFERENCES vulnerabilities(cve_id) ON DELETE CASCADE,
+    host_id INT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (cve_id, host_id)
+    );
     `
 ];
 
