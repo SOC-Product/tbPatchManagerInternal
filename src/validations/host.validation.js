@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const validateCreateHost = z.object({
-  computer_name: z
+  host_name: z
     .string({ required_error: "Host name is required" })
     .trim()
     .min(1, "Host name is required")

@@ -63,7 +63,7 @@ const __parseAdHostsData = (hostsData) => {
                     if (line.startsWith('dn:'))
                         computerData.distinguished_name = line.split('dn: ')[1];
                     if (line.startsWith('cn:'))
-                        computerData.computer_name = line.split('cn: ')[1];
+                        computerData.host_name = line.split('cn: ')[1];
                     if (line.startsWith('operatingSystem:'))
                         computerData.operating_system = line.split('operatingSystem: ')[1];
                     if (line.startsWith('operatingSystemVersion:'))
@@ -79,7 +79,7 @@ const __parseAdHostsData = (hostsData) => {
                 computerData.source = 'AD';
                 return computerData;
             })
-            .filter(computer => computer.computer_name && computer.distinguished_name);
+            .filter(computer => computer.host_name && computer.distinguished_name);
 
         return parsedHosts;
     } catch (error) {
@@ -90,7 +90,7 @@ const __parseAdHostsData = (hostsData) => {
 
 const __deleteHosts = async (hostsToDelete) => {
     try {
-        const computerNames = hostsToDelete.map(host => host.computer_name);
+        const computerNames = hostsToDelete.map(host => host.host_name);
         const placeholders = computerNames.map((_, index) => `$${index + 1}`).join(', ');
 
         await query(SCRIPT.AD_SYNC_HOSTS_TO_DELETE(placeholders), computerNames, { isWrite: true });
@@ -128,7 +128,7 @@ export const AssetSyncAdFunction = async () => {
 
             const existingHosts = (await query(SCRIPT.AD_SYNC_HOSTS, [], { isWrite: false })).rows;
 
-            const hostsToDelete = existingHosts.filter(host => !parsedHosts.some(item => item.computer_name === host.computer_name));
+            const hostsToDelete = existingHosts.filter(host => !parsedHosts.some(item => item.host_name === host.host_name));
 
             if (hostsToDelete.length > 0) {
                 await __deleteHosts(hostsToDelete);
