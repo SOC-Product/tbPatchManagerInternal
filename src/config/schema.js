@@ -3,7 +3,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
@@ -23,7 +23,6 @@ const schema = [
         os_version VARCHAR(255),
         os_release VARCHAR(255),
         os_family VARCHAR(255),
-        is_sync BOOLEAN DEFAULT false,
         last_sync_time TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
@@ -51,23 +50,28 @@ const schema = [
     );
     `,
     `
-    CREATE TABLE IF NOT EXISTS vulnerabilities (
+    CREATE TABLE IF NOT EXISTS linux_vulnerability (
     cve_id VARCHAR(50) PRIMARY KEY,
     severity VARCHAR(50) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
     cvss_score NUMERIC(3,1) NOT NULL,
+    package_name VARCHAR(50) NOT NULL,
+    os_type VARCHAR(50) NOT NULL,
+    os_version VARCHAR(50) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
    );
     `,
     `
-    CREATE TABLE IF NOT EXISTS vulnerability_host_mapping (
+    CREATE TABLE IF NOT EXISTS linux_vulnerability_mapping (
     cve_id VARCHAR(50) NOT NULL REFERENCES vulnerabilities(cve_id) ON DELETE CASCADE,
     host_id INT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    ip_address VARCHAR(50),
+    host_name VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (cve_id, host_id)
     );
-    `
+    `,
 ];
 
 
