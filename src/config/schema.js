@@ -49,27 +49,27 @@ const schema = [
         UNIQUE (maintainance_group_id, host_id)
     );
     `,
+    `DROP TABLE IF EXISTS linux_vulnerability_mapping;`,
+    `DROP TABLE IF EXISTS linux_vulnerability;`,
     `
     CREATE TABLE IF NOT EXISTS linux_vulnerability (
-    cve_id VARCHAR(50) PRIMARY KEY,
-    severity VARCHAR(50) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
-    cvss_score NUMERIC(3,1) NOT NULL,
-    package_name VARCHAR(50) NOT NULL,
-    os_type VARCHAR(50) NOT NULL,
-    os_version VARCHAR(50) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-   );
+        cve_id VARCHAR(50) PRIMARY KEY,
+        severity VARCHAR(50) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
+        cvss_score NUMERIC(3,1) NOT NULL,
+        package_name VARCHAR(50) NOT NULL,
+        os_type VARCHAR(50) NOT NULL,
+        os_version VARCHAR(50) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    );
     `,
+    
     `
     CREATE TABLE IF NOT EXISTS linux_vulnerability_mapping (
-    cve_id VARCHAR(50) NOT NULL REFERENCES vulnerabilities(cve_id) ON DELETE CASCADE,
-    host_id INT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
-    ip_address VARCHAR(50),
-    host_name VARCHAR(255),
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (cve_id, host_id)
+        cve_id VARCHAR(50) NOT NULL REFERENCES linux_vulnerability(cve_id) ON DELETE CASCADE,
+        host_id INT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (cve_id, host_id)
     );
     `,
 ];
