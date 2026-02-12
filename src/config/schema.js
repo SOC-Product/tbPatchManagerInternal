@@ -73,6 +73,29 @@ const schema = [
     PRIMARY KEY (cve_id, host_id)
     );
     `,
+    `
+    CREATE TABLE IF NOT EXISTS windows_vulnerability (
+    kb_id VARCHAR(50) PRIMARY KEY,
+    severity VARCHAR(50) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
+    cvss_score NUMERIC(3,1) NOT NULL,
+    package_name VARCHAR(100) NOT NULL,
+    os_type VARCHAR(50) NOT NULL,
+    os_version VARCHAR(50) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+`,
+`
+    CREATE TABLE IF NOT EXISTS windows_vulnerability_mapping (
+    kb_id VARCHAR(50) NOT NULL REFERENCES windows_vulnerability(kb_id) ON DELETE CASCADE,
+    host_id INT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    ip_address VARCHAR(50),
+    host_name VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (kb_id, host_id)
+    );
+`
 ];
 
 
