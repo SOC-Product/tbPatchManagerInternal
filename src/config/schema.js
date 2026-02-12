@@ -49,8 +49,6 @@ const schema = [
         UNIQUE (maintainance_group_id, host_id)
     );
     `,
-    `DROP TABLE IF EXISTS linux_vulnerability_mapping;`,
-    `DROP TABLE IF EXISTS linux_vulnerability;`,
     `
     CREATE TABLE IF NOT EXISTS linux_vulnerability (
         cve_id VARCHAR(50) PRIMARY KEY,
