@@ -47,7 +47,7 @@ hostService.createAdHost = async (hostData, sshKeyFile) => {
     let savedKeyFileName = null;
 
     if (sshKeyFile) {
-      savedKeyFileName = await processAndSaveSSHKey(sshKeyFile, hostData.computer_name);
+      savedKeyFileName = await processAndSaveSSHKey(sshKeyFile, hostData.host_name);
       hostData.ssh_key_file = savedKeyFileName;
     }
     
