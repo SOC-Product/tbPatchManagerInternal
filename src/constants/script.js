@@ -162,45 +162,49 @@ export const SCRIPT = {
 
   //VULNERABILITY
   BULK_ADD_LINUX_VULNERABILITY: (placeholders) => `
-  INSERT INTO linux_vulnerability 
+  INSERT INTO linux_vulnerability
   (cve_id, severity, cvss_score, package_name, os_type, os_version)
   VALUES ${placeholders}
   ON CONFLICT (cve_id)
   DO UPDATE SET
-    severity      = EXCLUDED.severity,
-    cvss_score    = EXCLUDED.cvss_score,
-    package_name  = EXCLUDED.package_name,
-    os_type       = EXCLUDED.os_type,
-    os_version    = EXCLUDED.os_version,
-    updated_at    = CURRENT_TIMESTAMP
+    severity     = EXCLUDED.severity,
+    cvss_score   = EXCLUDED.cvss_score,
+    package_name = EXCLUDED.package_name,
+    os_type      = EXCLUDED.os_type,
+    os_version   = EXCLUDED.os_version,
+    updated_at   = CURRENT_TIMESTAMP
 `,
+
 
 GET_HOSTS_BY_IPS: `SELECT id, ip, host_name FROM hosts WHERE ip = ANY($1)`,
 
 BULK_ADD_LINUX_VULNERABILITY_MAPPING: (placeholders) => `
-      INSERT INTO vulnerability_host_mapping 
-      (cve_id, host_id, host_name, ip_address)
-      VALUES ${placeholders}
-      ON CONFLICT (cve_id, host_id) DO NOTHING
-    `,
-  BULK_ADD_WINDOWS_VULNERABILITY: (placeholders) => `
-    INSERT INTO windows_vulnerability 
-    (kb_id, severity, cvss_score, package_name, os_type, os_version)
-    VALUES ${placeholders}
-    ON CONFLICT (kb_id)
-    DO UPDATE SET
-    severity = EXCLUDED.severity,
-    cvss_score = EXCLUDED.cvss_score,
-    package_name = EXCLUDED.package_name,
-    os_type = EXCLUDED.os_type,
-    os_version = EXCLUDED.os_version,
-    updated_at = CURRENT_TIMESTAMP
-  `,
+  INSERT INTO linux_vulnerability_mapping
+  (cve_id, host_id)
+  VALUES ${placeholders}
+  ON CONFLICT (cve_id, host_id)
+  DO NOTHING;
+`,
+BULK_ADD_WINDOWS_VULNERABILITY: (placeholders) => `
+INSERT INTO windows_vulnerability 
+(kb_id, severity, cvss_score, package_name, os_type, os_version)
+VALUES ${placeholders}
+ON CONFLICT (kb_id)
+DO UPDATE SET
+severity = EXCLUDED.severity,
+cvss_score = EXCLUDED.cvss_score,
+package_name = EXCLUDED.package_name,
+os_type = EXCLUDED.os_type,
+os_version = EXCLUDED.os_version,
+updated_at = CURRENT_TIMESTAMP
+`,
 
-  BULK_ADD_WINDOWS_VULNERABILITY_MAPPING: (placeholders) => `
-    INSERT INTO windows_vulnerability_mapping 
-    (kb_id, host_id, host_name, ip_address)
-    VALUES ${placeholders}
-    ON CONFLICT (kb_id, host_id) DO NOTHING
-  `,
+BULK_ADD_WINDOWS_VULNERABILITY_MAPPING: (placeholders) => `
+INSERT INTO windows_vulnerability_mapping 
+(kb_id, host_id, host_name, ip_address)
+VALUES ${placeholders}
+ON CONFLICT (kb_id, host_id) DO NOTHING
+`,
+
+
 };
