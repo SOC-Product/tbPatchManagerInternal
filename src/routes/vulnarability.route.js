@@ -8,6 +8,7 @@ router
   .post('/parseCsvVulnerability', uploadCsvFileMiddleware ,vulnerabilityController.parseCsvVulnerability)
   .post('/addVulnerability', vulnerabilityController.addLinuxVulnerability)
   .get('/linux', vulnerabilityController.getLinux)
+  .delete('/linux', vulnerabilityController.deleteLinux)
   .post('/addWindowsVulnerability', vulnerabilityController.addWindowsVulnerability)
 
 export default router;
