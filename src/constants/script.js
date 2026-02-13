@@ -197,11 +197,15 @@ BULK_ADD_LINUX_VULNERABILITY_MAPPING: (placeholders) => `
     ORDER BY package_name ASC LIMIT $2 OFFSET $3
     `,
 
+  GET_LINUX_CVE_ID: `
+    SELECT cve_id FROM linux_vulnerability
+    WHERE cve_id = ANY($1)
+  `,
   DELETE_LINUX: `
     DELETE FROM linux_vulnerability
     WHERE cve_id = ANY($1)
   `,
-  
+
 BULK_ADD_WINDOWS_VULNERABILITY: (placeholders) => `
 INSERT INTO windows_vulnerability 
 (kb_id, severity, cvss_score, package_name, os_type, os_version)
