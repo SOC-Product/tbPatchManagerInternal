@@ -3,7 +3,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
@@ -89,7 +89,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
@@ -175,7 +175,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
@@ -261,7 +261,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
@@ -347,7 +347,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
@@ -433,7 +433,7 @@ import { query } from './database.js';
 const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
-        computer_name VARCHAR(255) NOT NULL,
+        host_name VARCHAR(255) NOT NULL,
         ip VARCHAR(255),
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),

@@ -1,11 +1,14 @@
 import express from 'express';
 import vulnerabilityController from '../controllers/vulnerability.controller.js';
-import { uploadCsvFile } from '../middleware/upload.middleware.js';
+import { uploadCsvFileMiddleware } from '../middleware/upload.middleware.js';
 
 const router = express.Router();
 
 router
-  .post('/parseCsvVulnerability', uploadCsvFile.single('file') ,vulnerabilityController.parseCsvVulnerability)
-  .post('/addVulnerability', vulnerabilityController.addLinuxVulnerability)
+  .post('/parseCsvVulnerability', uploadCsvFileMiddleware ,vulnerabilityController.parseCsvVulnerability)
+  .post('/linux', vulnerabilityController.addLinux)
+  .get('/linux', vulnerabilityController.getLinux)
+  .delete('/linux', vulnerabilityController.deleteLinux)
+  .post('/addWindowsVulnerability', vulnerabilityController.addWindowsVulnerability)
 
 export default router;

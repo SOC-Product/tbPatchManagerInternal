@@ -1,33 +1,40 @@
 import multer from 'multer';
 import path from 'path';
 
-// storage config
-const storage = multer.memoryStorage(); 
-// memoryStorage = file.buffer available in service
+const createFileFilter = (allowedExtensions) => {
+  return (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
 
-// file filter
-const fileFilter = (req, file, cb) => {
-  const allowed = ['.pem', '.ppk'];
-
-  const ext = path.extname(file.originalname).toLowerCase();
-
-  if (allowed.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only .pem and .ppk files allowed'), false);
-  }
+    if (allowedExtensions.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Only ${allowedExtensions.join(', ')} files allowed`), false);
+    }
+  };
 };
 
+// CSV upload
 export const uploadCsvFile = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } //10MB
+  fileFilter: createFileFilter(['.csv']),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
-// multer instance
+// SSH key upload
 export const uploadSSHKey = multer({
-  storage,
-  fileFilter,
-  limits: {
-    fileSize: 2 * 1024 * 1024 // 2MB
-  }
+  storage: multer.memoryStorage(),
+  fileFilter: createFileFilter(['.pem', '.ppk']),
+  limits: { fileSize: 2 * 1024 * 1024 } // 2MB
 });
+
+export const uploadCsvFileMiddleware = (req, res, next) => {
+  uploadCsvFile.single('file')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    next();
+  });
+};

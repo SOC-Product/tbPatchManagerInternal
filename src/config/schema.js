@@ -4,7 +4,7 @@ const schema = [
     `CREATE TABLE IF NOT EXISTS hosts (
         id SERIAL PRIMARY KEY,
         host_name VARCHAR(255) NOT NULL,
-        ip VARCHAR(255),
+        ip VARCHAR(255) UNIQUE,
         distinguished_name VARCHAR(255) UNIQUE,
         operating_system VARCHAR(255),
         operating_system_version VARCHAR(255),
@@ -16,6 +16,7 @@ const schema = [
         patch_status VARCHAR(255),
         username VARCHAR(255),
         password VARCHAR(255),
+        ssh_key VARCHAR(255),
         ssh_key_file VARCHAR(255),
         source VARCHAR(50),
         status VARCHAR(255),
@@ -70,6 +71,29 @@ const schema = [
         PRIMARY KEY (cve_id, host_id)
     );
     `,
+    `
+    CREATE TABLE IF NOT EXISTS windows_vulnerability (
+    kb_id VARCHAR(50) PRIMARY KEY,
+    severity VARCHAR(50) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
+    cvss_score NUMERIC(3,1) NOT NULL,
+    package_name VARCHAR(100) NOT NULL,
+    os_type VARCHAR(50) NOT NULL,
+    os_version VARCHAR(50) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+`,
+`
+    CREATE TABLE IF NOT EXISTS windows_vulnerability_mapping (
+    kb_id VARCHAR(50) NOT NULL REFERENCES windows_vulnerability(kb_id) ON DELETE CASCADE,
+    host_id INT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    ip_address VARCHAR(50),
+    host_name VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (kb_id, host_id)
+    );
+`
 ];
 
 

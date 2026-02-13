@@ -60,7 +60,21 @@ export const SCRIPT = {
     FROM hosts
     WHERE id = $1
   `,
-
+  
+  GET_HOST_KPI: `
+  SELECT 
+    COUNT(*) AS total_host,
+    COUNT(*) FILTER (
+      WHERE LOWER(status) = 'online'
+    ) AS online,
+    COUNT(*) FILTER (
+      WHERE LOWER(status) = 'offline'
+    ) AS offline,
+    COUNT(*) FILTER (
+      WHERE LOWER(patch_status) = 'critical'
+    ) AS critical_patches
+  FROM hosts;
+  `,
   GET_GROUP_BY_NAME: `SELECT * FROM maintainance_group WHERE name = $1`,
   CREATE_GROUP: `INSERT INTO maintainance_group (name, risk_tolerance, description) VALUES ($1, $2, $3) RETURNING *`,
 
@@ -171,5 +185,47 @@ BULK_ADD_LINUX_VULNERABILITY_MAPPING: (placeholders) => `
   ON CONFLICT (cve_id, host_id)
   DO NOTHING;
 `,
+  GET_LINUX_VULNERABILITY_COUNT_BY_SEARCH:
+    `SELECT COUNT(*) AS count FROM linux_vulnerability 
+      WHERE cve_id ILIKE '%' || $1 || '%'
+      OR package_name ILIKE '%' || $1 || '%'`,
+
+  GET_LINUX_VULNERABILITY_BY_SEARCH: `
+    SELECT * FROM linux_vulnerability 
+    WHERE cve_id ILIKE '%' || $1 || '%'
+      OR package_name ILIKE '%' || $1 || '%'
+    ORDER BY package_name ASC LIMIT $2 OFFSET $3
+    `,
+
+  GET_LINUX_CVE_ID: `
+    SELECT cve_id FROM linux_vulnerability
+    WHERE cve_id = ANY($1)
+  `,
+  DELETE_LINUX: `
+    DELETE FROM linux_vulnerability
+    WHERE cve_id = ANY($1)
+  `,
+
+BULK_ADD_WINDOWS_VULNERABILITY: (placeholders) => `
+INSERT INTO windows_vulnerability 
+(kb_id, severity, cvss_score, package_name, os_type, os_version)
+VALUES ${placeholders}
+ON CONFLICT (kb_id)
+DO UPDATE SET
+severity = EXCLUDED.severity,
+cvss_score = EXCLUDED.cvss_score,
+package_name = EXCLUDED.package_name,
+os_type = EXCLUDED.os_type,
+os_version = EXCLUDED.os_version,
+updated_at = CURRENT_TIMESTAMP
+`,
+
+BULK_ADD_WINDOWS_VULNERABILITY_MAPPING: (placeholders) => `
+INSERT INTO windows_vulnerability_mapping 
+(kb_id, host_id, host_name, ip_address)
+VALUES ${placeholders}
+ON CONFLICT (kb_id, host_id) DO NOTHING
+`,
+
 
 };

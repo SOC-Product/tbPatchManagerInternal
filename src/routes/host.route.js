@@ -9,7 +9,8 @@ router
   .route("/")
   .get(hostController.getAllHosts)
   .post(uploadSSHKey.single('ssh_key'), hostController.createAdHost);
-  
+  router.route('/kpi')
+    .get(hostController.getKpiData)
   router.route('/:id')
   .put(hostController.updateAdHost)
   .delete(hostController.deleteAdHost)
