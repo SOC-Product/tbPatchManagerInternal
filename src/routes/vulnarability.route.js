@@ -7,6 +7,7 @@ const router = express.Router();
 router
   .post('/parseCsvVulnerability', uploadCsvFileMiddleware ,vulnerabilityController.parseCsvVulnerability)
   .post('/addVulnerability', vulnerabilityController.addLinuxVulnerability)
+  .get('/linux', vulnerabilityController.getLinux)
   .post('/addWindowsVulnerability', vulnerabilityController.addWindowsVulnerability)
 
 export default router;

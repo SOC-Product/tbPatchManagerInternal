@@ -185,6 +185,18 @@ BULK_ADD_LINUX_VULNERABILITY_MAPPING: (placeholders) => `
   ON CONFLICT (cve_id, host_id)
   DO NOTHING;
 `,
+  GET_LINUX_VULNERABILITY_COUNT_BY_SEARCH:
+    `SELECT COUNT(*) AS count FROM linux_vulnerability 
+      WHERE cve_id ILIKE '%' || $1 || '%'
+      OR package_name ILIKE '%' || $1 || '%'`,
+
+  GET_LINUX_VULNERABILITY_BY_SEARCH: `
+    SELECT * FROM linux_vulnerability 
+    WHERE cve_id ILIKE '%' || $1 || '%'
+      OR package_name ILIKE '%' || $1 || '%'
+    ORDER BY package_name ASC LIMIT $2 OFFSET $3
+    `,
+    
 BULK_ADD_WINDOWS_VULNERABILITY: (placeholders) => `
 INSERT INTO windows_vulnerability 
 (kb_id, severity, cvss_score, package_name, os_type, os_version)
